@@ -1,0 +1,12 @@
+LICENSE
+README.md
+setup.py
+bin/njupy
+njupy/__init__.py
+njupy/core.py
+njupy/process_runner.py
+njupy.egg-info/PKG-INFO
+njupy.egg-info/SOURCES.txt
+njupy.egg-info/dependency_links.txt
+njupy.egg-info/requires.txt
+njupy.egg-info/top_level.txt

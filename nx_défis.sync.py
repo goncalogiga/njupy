@@ -1,1 +1,0 @@
-/tmp/njupy__home_goncalo_njupy_nx_défis_ipynb/nx_défis.sync.py

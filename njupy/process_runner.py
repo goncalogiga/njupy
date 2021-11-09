@@ -1,21 +1,23 @@
 import os
+import signal
 import sys
 import subprocess
 
 PROC_LOG_PATH = "/tmp/njupy_proc_log.txt"
 
-def add_pid_to_njupy_table(paths, pid):
+
+def add_pid_to_njupy_table(path, pid):
     opening_flag = "a" if os.path.exists(PROC_LOG_PATH) else "w"
 
     with open(PROC_LOG_PATH, opening_flag) as f:
-        f.write(paths[0] + " " + paths[1] + " " + str(pid) + "\n")
+        f.write(path + " " + str(pid) + "\n")
 
 
 def kill_pid(pid):
-    pass
+    os.kill(int(pid), signal.SIGTERM)
 
 
-def launch_detatched_process(args, paths, log_path):
+def launch_detatched_process(args, path, log_path):
     stderr = open(log_path, "a") if log_path else open("/dev/null", "w")
 
     process = subprocess.Popen(args, stdout=open('/dev/null', 'w'),
@@ -23,8 +25,7 @@ def launch_detatched_process(args, paths, log_path):
                                preexec_fn=os.setpgrp,
                                shell=False)
 
-    if paths is not None:
-        add_pid_to_njupy_table(paths, process.pid)
+    add_pid_to_njupy_table(path, process.pid)
 
 
 def launch_and_wait_for_process(args, verbose):
@@ -43,9 +44,9 @@ def launch_and_wait_for_process(args, verbose):
         print(stdout.decode(sys.stdin.encoding))
 
 
-def launch_process(args, paths=None, log_path=None, detatch=False,
+def launch_process(args, path=None, log_path=None, detatch=False,
                    verbose=False):
     if detatch:
-        launch_detatched_process(args, paths, log_path)
+        launch_detatched_process(args, path, log_path)
     else:
         launch_and_wait_for_process(args, verbose)

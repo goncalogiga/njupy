@@ -1,0 +1,135 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+import click
+import process_runner
+from pathlib import Path
+from njupy.core import Core, retrieve_notebook
+
+
+def update_proc_log_path(target):
+    with open(process_runner.PROC_LOG_PATH, "r") as f:
+        kernels = f.readlines()
+
+    with open(process_runner.PROC_LOG_PATH, "w") as f: pass
+
+    for kernel in kernels:
+        kernel = kernel.split(" ")
+        path, pid = kernel[0], kernel[1]
+
+        if pid.strip() == target.strip():
+            pid_path = path
+        else:
+            with open(process_runner.PROC_LOG_PATH, "a") as f:
+                f.write(path + " " + pid)
+
+    return pid_path
+
+
+def list_of_kernels(show=True):
+    kernel_pids = []
+    kernel_paths = []
+
+    with open(process_runner.PROC_LOG_PATH, "r") as f:
+        kernels = f.readlines()
+
+    if show and len(kernels) >= 1:
+        print("[njupy] List of running kernels:")
+    elif show:
+        print("[njupy] No kernels launched.")
+
+    for kernel in kernels:
+        kernel = kernel.split(" ")
+        path, pid = kernel[0], kernel[1]
+        if show:
+            print(f"> {path} [pid={pid[:-1]}]")
+        kernel_pids.append(pid[:-1])
+        kernel_paths.append(path)
+
+    return kernel_pids, kernel_paths
+
+
+def stop_kernel(pid):
+    path = update_proc_log_path(pid)
+    process_runner.kill_pid(pid)
+    print(f"[njupy] Killed jupyter kernel of id '{pid}'")
+    os.remove(path.replace("ipynb", "py"))
+    retrieve_notebook(path)
+
+
+def liston_fn():
+    list_of_kernels()
+
+
+def killall_fn():
+    pids, _ = list_of_kernels(show=False)
+    for pid in pids:
+        stop_kernel(pid)
+
+
+def kill_fn(kill):
+    pids, _ = list_of_kernels(show=False)
+    if kill not in pids:
+        stop_kernel(pid)
+        print(f"[njupy] PID {kill} is not in the list of kernels.")
+        list_of_kernels()
+    else:
+        stop_kernel(kill)
+
+
+def end_fn():
+    pids, paths = list_of_kernels(show=False)
+    parent_paths = [Path(path).parent.absolute() for path in paths]
+    pid = None
+
+    for parent_path, path in zip(parent_paths, paths):
+        posix_path = Path(os.getcwd())
+        if posix_path == parent_path:
+            if parent_paths.count(posix_path) > 1:
+                raise Exception("Multiple kernels in current directory.")
+            pid = pids[paths.index(path)]
+            stop_kernel(pid)
+
+    if pid is None:
+        print("[njupy] The current directory is not linked to any notebook.")
+
+
+@click.command()
+@click.argument('notebook', nargs=-1, type=click.File('r'))
+@click.option('--liston', is_flag=True, default=False, metavar='<liston>',
+              help='Show the list of running jupter kernels.')
+@click.option('--kill', default=None, metavar='<kill>',
+              help='A PID of a kernel you wish to kill')
+@click.option('--killall', is_flag=True, default=False, metavar='<killall>',
+              help='Kill all lanched kernels.')
+@click.option('--end', is_flag=True, default=False, metavar='<end>',
+              help='If set, stops the session at the current directory (if the session was set)')
+@click.option('--verbose', is_flag=True, default=False, metavar='<verbose>',
+              help='Print stdout for each sub process executed.')
+def main(notebook, liston, kill, killall, end, verbose):
+    if liston:
+        liston_fn()
+
+    if killall:
+        killall_fn()
+
+    if kill:
+        kill_fn(kill)
+
+    if end:
+        end_fn()
+
+    if notebook:
+        notebook_path = os.path.join(os.getcwd(), notebook[0].name)
+        notebook_name = notebook[0].name.split("/")[-1].split(".")[0]
+
+        njupy_core = Core(notebook_name, notebook_path, verbose)
+
+        njupy_core.create_sync_files()
+
+        njupy_core.launch_jupyter()
+
+
+if __name__ == '__main__':
+    main()
