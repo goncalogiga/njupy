@@ -4,7 +4,7 @@ njupy is a simple script used as a sort of front end for [jupyter
 ascending](https://github.com/untitled-ai/jupyter_ascending.vim), a plugin used
 to edit Jupyter notebooks in vim.
 
-## Instalation
+## Installation
 
 After cloning the repository,
 
@@ -28,7 +28,7 @@ If you have a jupyter notebook called ```test.ipynb``` file, you can simply run 
 njupy test.ipynb
 ```
 
-This will generate a python file called ```test.sync.py``` and will rename the ```test.ipynb``` file into ```test.sync.ipynb``` and launch it with jupyter notebook (the process is detatched so you can still used the terminal which called njupy to launch vim)
+This will generate a python file called ```test.sync.py``` and will rename the ```test.ipynb``` file into ```test.sync.ipynb``` and launch it with jupyter notebook (the process is detatched so you can still use the terminal which called njupy to launch vim)
 
 Once the jupyter notebook is open, jupyter_ascending will work with the test.sync.py file
 
