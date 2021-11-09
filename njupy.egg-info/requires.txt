@@ -1,3 +1,4 @@
 jupyter_ascending
 jupytext
 click
+jsonrpcclient<4.0.0
