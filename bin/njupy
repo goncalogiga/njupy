@@ -3,16 +3,18 @@
 import os
 import sys
 import click
-import process_runner
+import njupy.process_runner
 from pathlib import Path
 from njupy.core import Core, retrieve_notebook
 
 
 def update_proc_log_path(target):
-    with open(process_runner.PROC_LOG_PATH, "r") as f:
+    with open(njupy.process_runner.PROC_LOG_PATH, "r") as f:
         kernels = f.readlines()
 
-    with open(process_runner.PROC_LOG_PATH, "w") as f: pass
+    with open(njupy.process_runner.PROC_LOG_PATH, "w") as f: pass
+
+    pid_path = None
 
     for kernel in kernels:
         kernel = kernel.split(" ")
@@ -21,8 +23,11 @@ def update_proc_log_path(target):
         if pid.strip() == target.strip():
             pid_path = path
         else:
-            with open(process_runner.PROC_LOG_PATH, "a") as f:
+            with open(njupy.process_runner.PROC_LOG_PATH, "a") as f:
                 f.write(path + " " + pid)
+
+    if pid_path is None:
+        raise Exception(f"PID {target} is not in the list of available kernel processes.")
 
     return pid_path
 
@@ -31,7 +36,7 @@ def list_of_kernels(show=True):
     kernel_pids = []
     kernel_paths = []
 
-    with open(process_runner.PROC_LOG_PATH, "r") as f:
+    with open(njupy.process_runner.PROC_LOG_PATH, "r") as f:
         kernels = f.readlines()
 
     if show and len(kernels) >= 1:
@@ -52,7 +57,7 @@ def list_of_kernels(show=True):
 
 def stop_kernel(pid):
     path = update_proc_log_path(pid)
-    process_runner.kill_pid(pid)
+    njupy.process_runner.kill_pid(pid)
     print(f"[njupy] Killed jupyter kernel of id '{pid}'")
     os.remove(path.replace("ipynb", "py"))
     retrieve_notebook(path)
@@ -71,7 +76,7 @@ def killall_fn():
 def kill_fn(kill):
     pids, _ = list_of_kernels(show=False)
     if kill not in pids:
-        stop_kernel(pid)
+        stop_kernel(kill)
         print(f"[njupy] PID {kill} is not in the list of kernels.")
         list_of_kernels()
     else:
@@ -99,7 +104,7 @@ def end_fn():
 @click.argument('notebook', nargs=-1, type=click.File('r'))
 @click.option('--liston', is_flag=True, default=False, metavar='<liston>',
               help='Show the list of running jupter kernels.')
-@click.option('--kill', default=None, metavar='<kill>',
+@click.option('--kill', default=None, metavar='<PID>',
               help='A PID of a kernel you wish to kill')
 @click.option('--killall', is_flag=True, default=False, metavar='<killall>',
               help='Kill all lanched kernels.')

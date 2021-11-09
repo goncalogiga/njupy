@@ -2,7 +2,7 @@ import os
 import sys
 import shutil
 from shutil import copyfile
-from process_runner import launch_process
+from njupy.process_runner import launch_process
 
 DAEMON_PATH = "/tmp/njupy_daemon_on"
 
