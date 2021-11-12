@@ -13,8 +13,6 @@ setup(
     packages=['njupy'],
     install_requires=['jupyter_ascending',
                       'jupytext',
-                      'click',
-                      'jsonrpcclient < 4.0.0',
                       ],
     scripts=['bin/njupy']
 )

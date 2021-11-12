@@ -36,8 +36,9 @@ def launch_and_wait_for_process(args, verbose):
 
     return_code = process.poll()
 
+    print(stderr.decode(sys.stderr.encoding))
+
     if return_code == 1:
-        print(stderr.decode(sys.stderr.encoding))
         sys.exit(1)
 
     if verbose:

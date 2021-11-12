@@ -6,6 +6,7 @@ import click
 import njupy.process_runner
 from pathlib import Path
 from njupy.core import Core, retrieve_notebook
+from njupy.verifications import verify_fn
 
 
 def update_proc_log_path(target):
@@ -59,7 +60,9 @@ def stop_kernel(pid):
     path = update_proc_log_path(pid)
     njupy.process_runner.kill_pid(pid)
     print(f"[njupy] Killed jupyter kernel of id '{pid}'")
-    os.remove(path.replace("ipynb", "py"))
+    py_path = path.replace("ipynb", "py")
+    os.remove(py_path)
+    print(f"[njupy] Removing file '{py_path}'")
     retrieve_notebook(path)
 
 
@@ -112,7 +115,12 @@ def end_fn():
               help='If set, stops the session at the current directory (if the session was set)')
 @click.option('--verbose', is_flag=True, default=False, metavar='<verbose>',
               help='Print stdout for each sub process executed.')
-def main(notebook, liston, kill, killall, end, verbose):
+@click.option('--healthcheck', is_flag=True, default=False, metavar='<healthcheck>',
+              help='Test if everything is working well.')
+def main(notebook, liston, kill, killall, end, verbose, healthcheck):
+    if healthcheck:
+        verify_fn()
+
     if liston:
         liston_fn()
 

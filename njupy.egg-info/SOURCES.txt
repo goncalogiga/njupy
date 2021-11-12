@@ -5,6 +5,7 @@ bin/njupy
 njupy/__init__.py
 njupy/core.py
 njupy/process_runner.py
+njupy/verifications.py
 njupy.egg-info/PKG-INFO
 njupy.egg-info/SOURCES.txt
 njupy.egg-info/dependency_links.txt

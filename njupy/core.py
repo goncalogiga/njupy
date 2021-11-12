@@ -25,11 +25,14 @@ class Core():
 
         self.notebook_path_str = filename + ".sync.ipynb"
 
-        launch_process(['jupytext', '--sync', self.notebook_path_str],
+        synced_notebook = filename + ".sync.py"
+
+        launch_process(['jupytext', '--sync', self.notebook_path_str,
+                        '-o', synced_notebook],
                        verbose=self.verbose)
 
         print("[njupy] Added a python file '%s' linked to the notebook."
-              % self.notebook_name + ".sync.py")
+              % synced_notebook)
 
     def launch_jupyter(self):
         launch_process(['jupyter', 'notebook', self.notebook_path_str],
