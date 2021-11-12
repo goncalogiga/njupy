@@ -21,7 +21,7 @@ err_msgs = [
     $ jupyter nbextension install jupyter_ascending --sys-prefix --py
 
     and enable it with:
-    $ jupyter nbextension     enable jupyter_ascending --sys-prefix --py""",
+    $ jupyter nbextension enable jupyter_ascending --sys-prefix --py""",
     """Could not find jupyter_ascending in jupyter's server extension.
     Please enable it with:
     $ jupyter serverextension enable jupyter_ascending --sys-prefix --py"""
