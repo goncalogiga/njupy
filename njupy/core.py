@@ -27,9 +27,15 @@ class Core():
 
         synced_notebook = filename + ".sync.py"
 
-        launch_process(['jupytext', '--sync', self.notebook_path_str,
-                        '-o', synced_notebook],
-                       verbose=self.verbose)
+        stdout_str = launch_process(['jupytext', '--sync', self.notebook_path_str,
+                                     '-o', synced_notebook],
+                                     verbose=self.verbose)
+
+        if not os.path.exists(synced_notebook):
+            print("[njupy] Aborted since no python file was dumped by jupytext.")
+            print("[njupy] Please make sure the notebook is compatible with jupytext.")
+            retrieve_notebook(self.notebook_path_str)
+            sys.exit(1)
 
         print("[njupy] Added a python file '%s' linked to the notebook."
               % synced_notebook)

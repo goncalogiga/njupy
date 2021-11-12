@@ -36,13 +36,15 @@ def launch_and_wait_for_process(args, verbose):
 
     return_code = process.poll()
 
-    print(stderr.decode(sys.stderr.encoding))
+    print("\033[93m" + stderr.decode(sys.stderr.encoding) + "\033[0m")
 
     if return_code == 1:
         sys.exit(1)
 
     if verbose:
         print(stdout.decode(sys.stdin.encoding))
+
+    return stdout.decode(sys.stdin.encoding)
 
 
 def launch_process(args, path=None, log_path=None, detatch=False,
